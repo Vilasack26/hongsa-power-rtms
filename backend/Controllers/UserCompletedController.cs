@@ -11,7 +11,6 @@ public class UserCompletedController:ControllerBase
     public string GetUser()
     {
         return "Welcome Brother";
-        return "Welcome Brother";
 
     }
  

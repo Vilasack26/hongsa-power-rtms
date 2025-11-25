@@ -13,7 +13,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("Hongsa.Rtms.Api")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+ae91e3ee68280f2801435ceec74f5a9ca91acd8f")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+bb3c4401a3fff26ee8f75e02ee425071395d76eb")]
 [assembly: System.Reflection.AssemblyProductAttribute("Hongsa.Rtms.Api")]
 [assembly: System.Reflection.AssemblyTitleAttribute("Hongsa.Rtms.Api")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]
