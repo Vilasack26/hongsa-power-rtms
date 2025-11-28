@@ -4,9 +4,11 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using System.Text;
-using Scalar.AspNetCore;
+using Hongsa.Rtms.Api.Models;
 
+using Scalar.AspNetCore;
 var builder = WebApplication.CreateBuilder(args);
+
 
 // Entity Framework Core MS SQL Server
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
@@ -15,32 +17,30 @@ builder.Services.AddDbContext<ApplicationDbContext>(options =>
     )
 );
 
-// Adding Identity (Trng karn add for num sh Identity)
-builder.Services.AddIdentity<IdentityUser, IdentityRole>(options => 
+// Adding Identity
+builder.Services.AddIdentity<ApplicationUser, IdentityRole>(options =>
 {
-    // (True is use) and (false is non-use)
-    // บังคับว่าต้องมีตัวเลข (0-9)
-    options.Password.RequireDigit = false;    
-    // บังคับว่าต้องมีตัวหนังสือเล็ก
+    // ไม่บังคับว่าต้องมีตัวเลข (0-9)
+    options.Password.RequireDigit = false;
+    // ไม่บังคับว่าต้องมีตัวพิมพ์เล็ก (a-z)
     options.Password.RequireLowercase = false;
-    // บังคับว่าต้องมีตัวหนังสือใหย่
+    // ไม่บังคับว่าต้องมีตัวพิมพ์ใหญ่ (A-Z)
     options.Password.RequireUppercase = false;
-    // บังคับว่าต้องมีตัวหนังสือพิเสด ( @, !, ...)
+    // ไม่บังคับว่าต้องมีอักขระพิเศษ (เช่น ! @ # $ %)
     options.Password.RequireNonAlphanumeric = false;
-    // บังคับว่าต้องมีความยาวกี่ตัวหนังสือ /*Can adjust the leght of number/
-    options.Password.RequiredLength = 8;  
+    // กำหนดความยาวขั้นต่ำ (เช่น ตั้งเป็น 8 ตัวอักษร)
+    options.Password.RequiredLength = 8;
 })
 .AddEntityFrameworkStores<ApplicationDbContext>()
 .AddDefaultTokenProviders();
 
 // Adding Authentication
-    builder.Services.AddAuthentication(options =>
-    {
-        options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
-        options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
-        options.DefaultScheme = JwtBearerDefaults.AuthenticationScheme;
-    })
-
+builder.Services.AddAuthentication(options =>
+{
+    options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+    options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+    options.DefaultScheme = JwtBearerDefaults.AuthenticationScheme;
+})
 // Adding Jwt Bearer
 .AddJwtBearer(options  => {
     options.SaveToken = true;
@@ -55,10 +55,22 @@ builder.Services.AddIdentity<IdentityUser, IdentityRole>(options =>
     };
 });
 
-// Show JWT:Secrect
-// Console.WriteLine($"JWT:secret: {builder.Configuration.GetSection("JWT:Secret").Value}");
+// Allow CORS
+builder.Services.AddCors(options => 
+{
+ options.AddPolicy("MultipleOrigins",
+    policy =>
+    {
+        policy.WithOrigins(
+            "*" // Allow any origin
+        )
+        .AllowAnyMethod()
+        .AllowAnyHeader();
+    });
+});
 
 // Add services to the container.
+
 builder.Services.AddControllers();
 // Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
 builder.Services.AddOpenApi();
@@ -87,6 +99,9 @@ app.UseAuthentication();
 
 // Add Authorization
 app.UseAuthorization();
+
+// Enable CORS
+app.UseCors("MultipleOrigins");
 
 app.MapControllers();
 

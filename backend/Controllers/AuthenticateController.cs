@@ -13,13 +13,13 @@ namespace Hongsa.Rtms.Api.Controllers;
 [Route("api/[controller]")]
 public class AuthenticateController: ControllerBase
 {
-    private readonly UserManager<IdentityUser> _userManager;
+    private readonly UserManager<ApplicationUser> _userManager;
     private readonly RoleManager<IdentityRole> _roleManager;
     private readonly IConfiguration _configuration;
 
     // Constructor
     public AuthenticateController(
-        UserManager<IdentityUser> userManager, RoleManager<IdentityRole> roleManager, 
+        UserManager<ApplicationUser> userManager, RoleManager<IdentityRole> roleManager, 
         IConfiguration configuration)
     {
         _userManager = userManager;
@@ -62,11 +62,17 @@ public class AuthenticateController: ControllerBase
         }
 
         // สร้าง User
-        IdentityUser user = new()
+        // ให้ใช้ ApplicationUser แทน IdentityUser
+        ApplicationUser user = new()
         {
             Email = model.Email,
             SecurityStamp = Guid.NewGuid().ToString(),
-            UserName = model.Username
+            UserName = model.Username,
+            // Map ข้อมูลใหม่ลงไป
+            FirstName = model.FirstName,
+            LastName = model.LastName,
+            EmployeeId = model.EmployeeId,
+            DepartmentName = model.DepartmentName
         };
 
         // สร้าง User ในระบบ
@@ -91,9 +97,13 @@ public class AuthenticateController: ControllerBase
             await _roleManager.CreateAsync(new IdentityRole(UserRolesModel.Admin));
         }
 
-        if (await _roleManager.RoleExistsAsync(UserRolesModel.User))
+        if (!await _roleManager.RoleExistsAsync(UserRolesModel.User))
         {
             await _roleManager.CreateAsync(new IdentityRole(UserRolesModel.User));
+        }
+
+        if (await _roleManager.RoleExistsAsync(UserRolesModel.User))
+        {
             await _userManager.AddToRoleAsync(user, UserRolesModel.User);
         }
 
@@ -139,11 +149,17 @@ public class AuthenticateController: ControllerBase
         }
 
         // สร้าง User
-        IdentityUser user = new()
+        // ให้ใช้ ApplicationUser แทน IdentityUser
+        ApplicationUser user = new()
         {
             Email = model.Email,
             SecurityStamp = Guid.NewGuid().ToString(),
-            UserName = model.Username
+            UserName = model.Username,
+            // Map ข้อมูลใหม่ลงไป
+            FirstName = model.FirstName,
+            LastName = model.LastName,
+            EmployeeId = model.EmployeeId,
+            DepartmentName = model.DepartmentName
         };
 
         // สร้าง User ในระบบ
@@ -195,6 +211,7 @@ public class AuthenticateController: ControllerBase
             var authClaims = new List<Claim>
             {
                 new Claim(ClaimTypes.Name, user.UserName!),
+                new Claim(ClaimTypes.NameIdentifier, user.Id), // Add User ID to Claims
                 new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString())
             };
 
@@ -208,7 +225,10 @@ public class AuthenticateController: ControllerBase
             return Ok(new 
             {
                 token = new JwtSecurityTokenHandler().WriteToken(token),
-                expiration = token.ValidTo
+                expiration = token.ValidTo,
+                roles = userRoles,
+                firstName = user.FirstName,
+                lastName = user.LastName
             });
         }
 
@@ -229,12 +249,11 @@ public class AuthenticateController: ControllerBase
         var token = new JwtSecurityToken(
             issuer: _configuration["JWT:ValidIssuer"],
             audience: _configuration["JWT:ValidAudience"],
-            expires: currentTime.AddYears(1), 
+            expires: currentTime.AddDays(7), // อายุของ Token 7 วัน
             claims: authClaims,
             signingCredentials: new SigningCredentials(authSigningKey, SecurityAlgorithms.HmacSha256)
         );
 
         return token;
     }
-    //Lifetime of password (Use by "Add(Minutes, Hours, Days, Years)" )
-}
+}   

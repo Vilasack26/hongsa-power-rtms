@@ -5,18 +5,29 @@ namespace Hongsa.Rtms.Api.Models;
 public class RegisterModel
 {
     [Required(ErrorMessage = "Username is required")]
-
-    // number on the front is the leght of letter that we setting
-    [StringLength(30, ErrorMessage = "Username is too long")]
-    [MinLength(5, ErrorMessage = "Username is too short")]
+    [StringLength(50, ErrorMessage = "Username is too long")]
+    [MinLength(3, ErrorMessage = "Username is too short")]
     public required string Username { get; set; }
     
     [Required(ErrorMessage = "Email is required")]
-    
-    //EmailAddress is requir letter email form have @ and .com
     [EmailAddress(ErrorMessage = "Email is not valid")]
     public required string Email { get; set; }
     
     [Required(ErrorMessage = "Password is required")]
     public required string Password { get; set; }
+
+    // เพิ่มฟิลด์ใหม่ให้หน้ารับค่า
+    [Required(ErrorMessage = "First Name is required")]
+    public required string FirstName { get; set; }
+
+    [Required(ErrorMessage = "Last Name is required")]
+    public required string LastName { get; set; }
+
+    [Required(ErrorMessage = "Employee ID is required")]
+    public required string EmployeeId { get; set; }
+    
+    [Required(ErrorMessage = "Department Name is required")]
+    public required string DepartmentName { get; set; }
 }
+
+// [Required(ErrorMessage = "DepartmentName is required")] is used to ensure that the DepartmentName field is not left empty when a user registers.
